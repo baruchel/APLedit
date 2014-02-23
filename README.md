@@ -2,7 +2,7 @@ APLedit
 =======
 
 A line-editor with a pop-up menu for easely inserting special APL characters
-It will be able to interact with various APL interpreters with a speial focus
+It will be able to interact with various APL interpreters with a special focus
 on GNU APL.
 
 Since it uses the readline library, the key bindings can be set in the ~/.inputrc

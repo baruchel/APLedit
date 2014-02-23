@@ -27,35 +27,30 @@ int item = 0;
 int cursor_pos;
 char *aplchar;
 char prompt_buf[64], line_buf[4096];
-char internal_buf[4096];
 tcflag_t old_lflag;
 cc_t     old_vtime;
 struct termios term;
 char escape = 27;
-char *color1;
-char *color2;
-char *color3;
-char *color4;
-char *color5;
-char *color6;
+char *prompt1;
+char *prompt2;
 char *leave;
 FILE *out;
+char *filename;
 
 int main(int argc, char **argv) {
     fd_set fds;
     int i;
-    char *b = internal_buf;
 
-    aplchar = "\0";
+    aplchar = "\0"; filename = NULL;
     out = stderr;
     leave = "\0";
 
-    color1 = "\0"; color2 = "\0"; color3 = "\0";
-    color4 = "\0"; color5 = "\0"; color6 = "\0";
+    prompt1 = "    \0";
+    prompt2 = "[%s %s]\0";
 
     for (i=1;i<argc;i++) {
-      if (0 == strcmp(argv[i],"-e")) { out = stderr; }
-      if (0 == strcmp(argv[i],"-o")) { out = stdout; }
+      if (0 == strcmp(argv[i],"-e")) { out = stderr; filename = NULL; }
+      if (0 == strcmp(argv[i],"-o")) { out = stdout; filename = NULL; }
       if (0 == strcmp(argv[i],"-q")) {
         if (i < argc-1) {
           leave = argv[i+1]; i++;
@@ -64,59 +59,37 @@ int main(int argc, char **argv) {
           exit(EXIT_FAILURE);
         }
       }
-      if (0 == strcmp(argv[i],"-c1")) {
+      if (0 == strcmp(argv[i],"-p1")) {
         if (i < argc-1) {
-          color1 = b; *b = escape;
-          strcpy(b+1,argv[i+1]); b += 2+strlen(argv[i+1]); i++;
+          prompt1 = argv[i+1]; i++;
         } else {
-          fprintf(stderr,"error: expected escape string for -c1\n");
+          fprintf(stderr,"error: expected format string for -p1\n");
           exit(EXIT_FAILURE);
         }
       }
-      if (0 == strcmp(argv[i],"-c2")) {
+      if (0 == strcmp(argv[i],"-p2")) {
         if (i < argc-1) {
-          color2 = b; *b = escape;
-          strcpy(b+1,argv[i+1]); b += 2+strlen(argv[i+1]); i++;
+          prompt2 = argv[i+1]; i++;
         } else {
-          fprintf(stderr,"error: expected escape string for -c2\n");
+          fprintf(stderr,"error: expected format string for -p2\n");
           exit(EXIT_FAILURE);
         }
       }
-      if (0 == strcmp(argv[i],"-c3")) {
+      if (0 == strcmp(argv[i],"-f")) {
         if (i < argc-1) {
-          color3 = b; *b = escape;
-          strcpy(b+1,argv[i+1]); b += 2+strlen(argv[i+1]); i++;
+          filename = argv[i+1]; i++;
         } else {
-          fprintf(stderr,"error: expected escape string for -c3\n");
+          fprintf(stderr,"error: expected file name for -f\n");
           exit(EXIT_FAILURE);
         }
       }
-      if (0 == strcmp(argv[i],"-c4")) {
-        if (i < argc-1) {
-          color4 = b; *b = escape;
-          strcpy(b+1,argv[i+1]); b += 2+strlen(argv[i+1]); i++;
-        } else {
-          fprintf(stderr,"error: expected escape string for -c4\n");
-          exit(EXIT_FAILURE);
-        }
-      }
-      if (0 == strcmp(argv[i],"-c5")) {
-        if (i < argc-1) {
-          color5 = b; *b = escape;
-          strcpy(b+1,argv[i+1]); b += 2+strlen(argv[i+1]); i++;
-        } else {
-          fprintf(stderr,"error: expected escape string for -c5\n");
-          exit(EXIT_FAILURE);
-        }
-      }
-      if (0 == strcmp(argv[i],"-c6")) {
-        if (i < argc-1) {
-          color6 = b; *b = escape;
-          strcpy(b+1,argv[i+1]); b += 2+strlen(argv[i+1]); i++;
-        } else {
-          fprintf(stderr,"error: expected escape string for -c6\n");
-          exit(EXIT_FAILURE);
-        }
+    }
+
+    if(filename) {
+      out = fopen(filename,"a");
+      if (!out) {
+        fprintf(stderr,"error: unable to open the file '%s'\n",filename);
+        exit(EXIT_FAILURE);
       }
     }
 
@@ -349,8 +322,7 @@ char * get_prompt(void)
   };
 
   if (mode==0) {
-    sprintf(prompt_buf, "    ");
-    return prompt_buf;
+    return prompt1;
   }
 
   switch(category) {
@@ -615,7 +587,6 @@ char * get_prompt(void)
       break;
   }
 
-  sprintf(prompt_buf, "%s[%s%s%s %s%s%s]%s ", color1, color2,
-    catname[category], color3, color4, aplchar, color5, color6);
+  sprintf(prompt_buf, prompt2, catname[category], aplchar);
   return prompt_buf;
 }

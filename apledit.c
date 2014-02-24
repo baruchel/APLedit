@@ -43,38 +43,18 @@ int main(int argc, char **argv) {
 
     aplchar = "\0"; filename = NULL;
     out = stderr;
-    leave = "\0";
 
-    prompt1 = "    \0";
-    prompt2 = "[%s %s]\0";
+    prompt1 = getenv("APLEDIT_PROMPT1");
+    prompt2 = getenv("APLEDIT_PROMPT2");
+    leave = getenv("APLEDIT_LEAVE");
+
+    if(!prompt1) prompt1 = "    \0";
+    if(!prompt2) prompt2 = "[%s %s]\0";
+    if(!leave) leave = "\0";
 
     for (i=1;i<argc;i++) {
       if (0 == strcmp(argv[i],"-e")) { out = stderr; filename = NULL; }
       if (0 == strcmp(argv[i],"-o")) { out = stdout; filename = NULL; }
-      if (0 == strcmp(argv[i],"-q")) {
-        if (i < argc-1) {
-          leave = argv[i+1]; i++;
-        } else {
-          fprintf(stderr,"error: expected message string for -q\n");
-          exit(EXIT_FAILURE);
-        }
-      }
-      if (0 == strcmp(argv[i],"-p1")) {
-        if (i < argc-1) {
-          prompt1 = argv[i+1]; i++;
-        } else {
-          fprintf(stderr,"error: expected format string for -p1\n");
-          exit(EXIT_FAILURE);
-        }
-      }
-      if (0 == strcmp(argv[i],"-p2")) {
-        if (i < argc-1) {
-          prompt2 = argv[i+1]; i++;
-        } else {
-          fprintf(stderr,"error: expected format string for -p2\n");
-          exit(EXIT_FAILURE);
-        }
-      }
       if (0 == strcmp(argv[i],"-f")) {
         if (i < argc-1) {
           filename = argv[i+1]; i++;
@@ -92,6 +72,7 @@ int main(int argc, char **argv) {
         exit(EXIT_FAILURE);
       }
     }
+
 
     /* Adjust the terminal slightly before the handler is installed. Disable
      * canonical mode processing and set the input character time flag to be

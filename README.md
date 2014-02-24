@@ -18,11 +18,16 @@ configuration file of each user. Example:
     $endif
 
 The user can customize both prompt (normal prompt and pop-up menu). Using ANSI
-escape sequences for color/bold/etc. can also be done:
+escape sequences for color/bold/etc. can also be done.
 
-    ./apledit -p2 "^[[1;33m[%s %s]^[[0m "
-    ./apledit -p2 "^[[37;44;1m%s ^[[33;45m%s^[[0m " -q ")OFF" -p1 "% "
+Previous version would customize the prompt strings by using command line option.
+Unfortunately, using variables in ~/.inputrc doesn't seem to be doable. The
+solution found now is to use environment variables:
 
-But escape sequence has to be typed as directly.
+    export APLEDIT_PROMPT2=$'\033[1;33m[%s %s]\033[0m '
+
+or
+
+    export APLEDIT_PROMPT2=$'\033[37;44;1m%s \033[33;45m%s\033[0m '
 
 A few other flags will be described later.

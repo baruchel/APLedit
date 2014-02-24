@@ -30,7 +30,6 @@ char prompt_buf[64], line_buf[4096];
 tcflag_t old_lflag;
 cc_t     old_vtime;
 struct termios term;
-char escape = 27;
 char *prompt1;
 char *prompt2;
 char *leave;
@@ -49,7 +48,7 @@ int main(int argc, char **argv) {
     leave = getenv("APLEDIT_LEAVE");
 
     if(!prompt1) prompt1 = "    \0";
-    if(!prompt2) prompt2 = "[%s %s]\0";
+    if(!prompt2) prompt2 = "[%s %s] \0";
     if(!leave) leave = "\0";
 
     for (i=1;i<argc;i++) {
@@ -72,6 +71,8 @@ int main(int argc, char **argv) {
         exit(EXIT_FAILURE);
       }
     }
+
+    setlinebuf(out);
 
 
     /* Adjust the terminal slightly before the handler is installed. Disable

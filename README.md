@@ -25,3 +25,7 @@ It has to be run through the LD__PRELOAD mechanism.
     LD_PRELOAD=./apledit.so apl --noCIN
 
 You can enter the editor whenever you want with the apledit-mode function.
+
+You can customize the menu with something like:
+
+    export APLEDIT_PROMPT='%s [%s] '

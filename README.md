@@ -48,11 +48,11 @@ You can change the color of the banner (concerning APLedit) with:
 
 You can display the key to be typed for displaying the menu as a remainder:
 
-    export APLEDIT_BANNER_KEY="anything"
+    export APLEDIT_BANNER_KEY="true"
 
 You can also remove the whole banner with:
 
-    export APLEDIT_NOBANNER="anything"
+    export APLEDIT_NOBANNER="true"
 
 ##Demo
 ![Demo](https://raw.github.com/baruchel/APLedit/master/apledit.gif)

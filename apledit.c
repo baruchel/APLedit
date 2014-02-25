@@ -77,7 +77,7 @@ char *readline (const char *prompt) {
           }
           fprintf(stderr," for displaying the menu.)\n");
         } else {
-          fprintf(stderr,"  (No key has been found in the %s file for displaying the menu.)\n",INITFILE);
+          fprintf(stderr,"  (No key has been found in the configuration file for displaying the menu.)\n");
         }
       }
       fprintf(stderr,"\n");

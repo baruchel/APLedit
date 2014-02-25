@@ -32,6 +32,7 @@ char *(*original_readline)(const char*);
 
 char *readline (const char *prompt) {
   static int first = 0;
+  char **s;
 
   if (0 == first) {
     first = 1;
@@ -63,8 +64,25 @@ char *readline (const char *prompt) {
       fprintf(stderr, "  %sAPLedit %s by Th. Baruchel %s.\n",
         color,VERSION, COPYRIGHT);
       fprintf(stderr, "  Released under the terms of the GNU Public License.\n");
+      if(getenv("APLEDIT_BANNER_KEY")) {
+        s = rl_invoking_keyseqs(rl_named_function("apledit-mode"));
+        if (s) {
+          fprintf(stderr,"  (Hit");
+          while(*s) {
+            fprintf(stderr," %s",*s);
+            s++;
+            if(*s) {
+              fprintf(stderr," or");
+            }
+          }
+          fprintf(stderr," for displaying the menu.)\n");
+        } else {
+          fprintf(stderr,"  (No key has been found in the %s file for displaying the menu.)\n",INITFILE);
+        }
+      }
       fprintf(stderr,"\n");
     }
+
     color = getenv("APLEDIT_COLOR");
     if (NULL == color) {
       color = "\0";

@@ -29,3 +29,4 @@ You can enter the editor whenever you want with the apledit-mode function.
 You can customize the menu with something like:
 
     export APLEDIT_PROMPT='%s [%s] '
+    export APLEDIT_COLOR=$'\033[0;1m'

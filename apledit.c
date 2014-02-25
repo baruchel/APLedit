@@ -13,7 +13,7 @@
 #endif
 
 char prompt1[64], prompt_buf[64];
-char *prompt2;
+char *prompt2, *color;
 
 int mode = 0;
 int category = 0;
@@ -43,16 +43,23 @@ char *readline (const char *prompt) {
     rl_add_defun("apledit-item-down", change_item_down, -1);
     rl_add_defun("apledit-insert-char", insert_aplchar, -1);
     rl_read_init_file("~/.inputrc");
-    fprintf(stderr, "  APLedit %s by Th. Baruchel %s.\n", VERSION, COPYRIGHT);
-    fprintf(stderr, "  Released under the terms of the GNU Public License.\n");
     prompt2 = getenv("APLEDIT_PROMPT");
     if (NULL == prompt2) {
       prompt2 = "[%s %s] \0";
     }
+    color = getenv("APLEDIT_COLOR");
+    if (NULL == color) {
+      color = "\0";
+    }
+    fprintf(stderr, "  %sAPLedit %s by Th. Baruchel %s.\n",
+      color,VERSION, COPYRIGHT);
+    fprintf(stderr, "  Released under the terms of the GNU Public License.\n");
+    fprintf(stderr,"\n");
   }
 
   strcpy(prompt1,prompt);
 
+  fprintf(stderr,"%s",color);
   return (*original_readline)(get_prompt());
 }
 

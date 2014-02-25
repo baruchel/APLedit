@@ -16,6 +16,8 @@ The program has to be run through the LD_PRELOAD mechanism.
 
     LD_PRELOAD=./apledit.so apl --noCIN
 
+Of course, once you have found a good location for the binary file, you should create some alias for your shell in order to type only `apl` or some easy to remeber command.
+
 You can enter the editor whenever you want with the apledit-mode function.
 
 ##Settings

@@ -11,14 +11,12 @@
 #  include <readline/readline.h>
 #endif
 
-char prompt1[64], prompt_buf[64], line_buf[4096];
+char prompt1[64], prompt_buf[64];
 char *prompt2;
-char line_buf[4096];
 
 int mode = 0;
 int category = 0;
 int item = 0;
-int cursor_pos;
 char *aplchar;
 
 int  change_mode(int, int);
@@ -150,28 +148,6 @@ int change_item_down(int count, int key)
   }
   return(0);
 }
-
-/*
-   Variable: char * rl_line_buffer
-           This is the line gathered so far. You are welcome to modify the contents of
-           the line, but see 2.4.5 Allowing Undoing. The function rl_extend_line_buffer
-           is available to increase the memory allocated to rl_line_buffer.
-
-   Variable: int rl_point
-           The offset of the current cursor position in rl_line_buffer (the point).
-
-   Variable: int rl_end
-           The number of characters present in rl_line_buffer. When rl_point is at the
-           end of the line, rl_point and rl_end are equal.
-
-   Function: void rl_extend_line_buffer (int len)
-           Ensure that rl_line_buffer has enough space to hold len characters, possibly
-           reallocating it if necessary.
-
-   Function: void rl_redisplay (void)
-           Change what's displayed on the screen to reflect the current contents of
-           rl_line_buffer.
-*/
 
 int insert_aplchar(int count, int key) {
   if (mode==1) {

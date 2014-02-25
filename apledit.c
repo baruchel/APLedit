@@ -2,7 +2,7 @@
 
 #define _GNU_SOURCE
 
-//#include <stdlib.h>
+#include <stdlib.h>
 #include <dlfcn.h>
 
 #ifdef READLINE_LIBRARY
@@ -45,13 +45,10 @@ char *readline (const char *prompt) {
     rl_add_defun("apledit-insert-char", insert_aplchar, -1);
     rl_read_init_file("~/.inputrc");
     fprintf(stderr,"APLedit %s by Th. Baruchel\n", VERSION);
-    /*
     prompt2 = getenv("APLEDIT_PROMPT");
     if (NULL == prompt2) {
       prompt2 = "[%s %s] \0";
     }
-    */
-      prompt2 = "[%s %s] \0";
   }
 
   /* install a new handler which will change the prompt and erase the current line */

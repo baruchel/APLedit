@@ -30,3 +30,7 @@ You can customize the menu with something like:
 
     export APLEDIT_PROMPT='%s [%s] '
     export APLEDIT_COLOR=$'\033[0;1m'
+
+You can remove the banner concerning APLedit with:
+
+    export APLEDIT_NOBANNER="True"

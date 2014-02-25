@@ -1,5 +1,6 @@
 #define VERSION "1.0"
 #define COPYRIGHT "(c) 2014"
+#define INITFILE "~/.inputrc"
 
 #define _GNU_SOURCE
 
@@ -42,7 +43,7 @@ char *readline (const char *prompt) {
     rl_add_defun("apledit-item-up", change_item_up, -1);
     rl_add_defun("apledit-item-down", change_item_down, -1);
     rl_add_defun("apledit-insert-char", insert_aplchar, -1);
-    rl_read_init_file("~/.inputrc");
+    rl_read_init_file(INITFILE);
     prompt2 = getenv("APLEDIT_PROMPT");
     if (NULL == prompt2) {
       prompt2 = "[%s %s] \0";
@@ -51,10 +52,12 @@ char *readline (const char *prompt) {
     if (NULL == color) {
       color = "\0";
     }
-    fprintf(stderr, "  %sAPLedit %s by Th. Baruchel %s.\n",
-      color,VERSION, COPYRIGHT);
-    fprintf(stderr, "  Released under the terms of the GNU Public License.\n");
-    fprintf(stderr,"\n");
+    if(!getenv("APLEDIT_NOBANNER")) {
+      fprintf(stderr, "  %sAPLedit %s by Th. Baruchel %s.\n",
+        color,VERSION, COPYRIGHT);
+      fprintf(stderr, "  Released under the terms of the GNU Public License.\n");
+      fprintf(stderr,"\n");
+    }
   }
 
   strcpy(prompt1,prompt);

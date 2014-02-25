@@ -2,11 +2,14 @@ APLedit
 =======
 
 A line-editor with a pop-up menu for easely inserting special APL characters
-It will be able to interact with various APL interpreters with a special focus
-on GNU APL.
+It is able to interact with any interpreter using readline (like GNU APL).
 
-Since it uses the readline library, the key bindings can be set in the ~/.inputrc
-configuration file of each user. Example:
+Compile it with:
+
+    gcc -Wall -fPIC -shared -o apledit.so apledit.c -ldl
+
+The key bindings must be set in the ~/.inputrc configuration file of each user.
+Example:
 
     $if APLedit
     "\e[2~": apledit-mode             # key "insert"
@@ -17,21 +20,8 @@ configuration file of each user. Example:
     "\e/": apledit-insert-char        # key "menu" (below, next to right-ctrl)
     $endif
 
-The user can customize both prompt (normal prompt and pop-up menu). Using ANSI
-escape sequences for color/bold/etc. can also be done.
+It has to be run through the LD__PRELOAD mechanism.
 
-Previous version would customize the prompt strings by using command line option.
-Unfortunately, using variables in ~/.inputrc doesn't seem to be doable. The
-solution found now is to use environment variables:
+    LD_PRELOAD=./apledit.so apl --noCIN
 
-    export APLEDIT_PROMPT2=$'\033[1;33m[%s %s]\033[0m '
-
-or
-
-    export APLEDIT_PROMPT2=$'\033[37;44;1m%s \033[33;45m%s\033[0m '
-
-Another environment variable allows to set the string to be sent when leaving with an empty line (generally by hitting Ctrl-D). Example:
-
-    export APLEDIT_LEAVE=")OFF"
-
-A few other flags will be described later.
+You can enter the editor whenever you want with the apledit-mode function.

@@ -1,10 +1,9 @@
-#include <unistd.h>
-#include <stdlib.h>
+#define VERSION "1.0"
 
-#include <stdio.h>
-#include <sys/types.h>
+#define _GNU_SOURCE
 
-#include <termios.h>	/* xxx - should make this more general */
+//#include <stdlib.h>
+#include <dlfcn.h>
 
 #ifdef READLINE_LIBRARY
 #  include "readline.h"
@@ -12,7 +11,16 @@
 #  include <readline/readline.h>
 #endif
 
-void process_line(char *line);
+char prompt1[64], prompt_buf[64], line_buf[4096];
+char *prompt2;
+char line_buf[4096];
+
+int mode = 0;
+int category = 0;
+int item = 0;
+int cursor_pos;
+char *aplchar;
+
 int  change_mode(int, int);
 int  change_category_up(int, int);
 int  change_category_down(int, int);
@@ -20,149 +28,44 @@ int  change_item_up(int, int);
 int  change_item_down(int, int);
 int  insert_aplchar(int, int);
 char *get_prompt(void);
+char *(*original_readline)(const char*);
 
-int mode = 0;
-int category = 0;
-int item = 0;
-int cursor_pos;
-char *aplchar;
-char prompt_buf[64], line_buf[4096];
-tcflag_t old_lflag;
-cc_t     old_vtime;
-struct termios term;
-char *prompt1;
-char *prompt2;
-char *leave;
-FILE *out;
-char *filename;
+char *readline (const char *prompt) {
+  static int first = 0;
 
-int main(int argc, char **argv) {
-    fd_set fds;
-    int i;
-
-    aplchar = "\0"; filename = NULL;
-    out = stderr;
-
-    prompt1 = getenv("APLEDIT_PROMPT1");
-    prompt2 = getenv("APLEDIT_PROMPT2");
-    leave = getenv("APLEDIT_LEAVE");
-
-    if(!prompt1) prompt1 = "    \0";
-    if(!prompt2) prompt2 = "[%s %s] \0";
-    if(!leave) leave = "\0";
-
-    for (i=1;i<argc;i++) {
-      if (0 == strcmp(argv[i],"-e")) { out = stderr; filename = NULL; }
-      if (0 == strcmp(argv[i],"-o")) { out = stdout; filename = NULL; }
-      if (0 == strcmp(argv[i],"-f")) {
-        if (i < argc-1) {
-          filename = argv[i+1]; i++;
-        } else {
-          fprintf(stderr,"error: expected file name for -f\n");
-          exit(EXIT_FAILURE);
-        }
-      }
-    }
-
-    if(filename) {
-      out = fopen(filename,"a");
-      if (!out) {
-        fprintf(stderr,"error: unable to open the file '%s'\n",filename);
-        exit(EXIT_FAILURE);
-      }
-    }
-
-    setlinebuf(out);
-
-
-    /* Adjust the terminal slightly before the handler is installed. Disable
-     * canonical mode processing and set the input character time flag to be
-     * non-blocking.
-     */
-    if( tcgetattr(STDIN_FILENO, &term) < 0 ) {
-        perror("tcgetattr");
-        exit(1);
-    }
-    old_lflag = term.c_lflag;
-    old_vtime = term.c_cc[VTIME];
-    term.c_lflag &= ~ICANON;
-    term.c_cc[VTIME] = 1;
-    /* COMMENT LINE BELOW - see above */
-    if( tcsetattr(STDIN_FILENO, TCSANOW, &term) < 0 ) {
-        perror("tcsetattr");
-        exit(1);
-    }
-
+  if (0 == first) {
+    first = 1;
+    original_readline = dlsym(RTLD_NEXT, "readline");
     rl_readline_name = "APLedit";
-
     rl_add_defun("apledit-mode", change_mode, -1);
     rl_add_defun("apledit-category-up", change_category_up, -1);
     rl_add_defun("apledit-category-down", change_category_down, -1);
     rl_add_defun("apledit-item-up", change_item_up, -1);
     rl_add_defun("apledit-item-down", change_item_down, -1);
     rl_add_defun("apledit-insert-char", insert_aplchar, -1);
-    rl_callback_handler_install(get_prompt(), process_line);
-
-
-    while(1) {
-      FD_ZERO(&fds);
-      FD_SET(fileno(stdin), &fds);
-
-      if( select(FD_SETSIZE, &fds, NULL, NULL, NULL) < 0) {
-        perror("select");
-        exit(1);
-      }
-
-      if( FD_ISSET(fileno(stdin), &fds) ) {
-        rl_callback_read_char();
-      }
+    rl_read_init_file("~/.inputrc");
+    fprintf(stderr,"APLedit %s by Th. Baruchel\n", VERSION);
+    /*
+    prompt2 = getenv("APLEDIT_PROMPT");
+    if (NULL == prompt2) {
+      prompt2 = "[%s %s] \0";
     }
-}
-
-void process_line(char *line)
-{
-  if( line == NULL ) {
-    fprintf(out, "%s\n",leave); fflush(out);
-
-    /* reset the old terminal setting before exiting */
-    term.c_lflag     = old_lflag;
-    term.c_cc[VTIME] = old_vtime;
-    if( tcsetattr(STDIN_FILENO, TCSANOW, &term) < 0 ) {
-        perror("tcsetattr");
-        exit(1);
-    }
-    exit(0);
+    */
+      prompt2 = "[%s %s] \0";
   }
 
-  fprintf(out, "%s\n", line); fflush(out);
+  /* install a new handler which will change the prompt and erase the current line */
+  strcpy(prompt1,prompt);
 
-  if (line && *line) {
-    add_history(line);
-  }
-
-  free (line);
+  return (*original_readline)(get_prompt());
 }
 
 int change_mode(int count, int key)
 {
   /* toggle the mode */
   mode = !mode;
-
-  /* save away the current contents of the line */
-  strcpy(line_buf, rl_line_buffer);
-  cursor_pos = rl_point;
-
-  /* install a new handler which will change the prompt and erase the current line */
-  rl_callback_handler_install(get_prompt(), process_line);
-
-  /* insert the old text on the new line */
-  rl_insert_text(line_buf);
-  rl_point = cursor_pos;
-
-  /* redraw the current line - this is an undocumented function. It invokes the
-   * redraw-current-line command.
-   */
-  rl_refresh_line(0, 0);
+  rl_message(get_prompt());
+  return(0);
 }
 
 int change_category_up(int count, int key)
@@ -173,13 +76,9 @@ int change_category_up(int count, int key)
     if(category<0) {
       category = 6;
     }
-    strcpy(line_buf, rl_line_buffer);
-    cursor_pos = rl_point;
-    rl_callback_handler_install(get_prompt(), process_line);
-    rl_insert_text(line_buf);
-    rl_point = cursor_pos;
-    rl_refresh_line(0, 0);
+    rl_message(get_prompt());
   }
+  return(0);
 }
 
 int change_category_down(int count, int key)
@@ -190,13 +89,9 @@ int change_category_down(int count, int key)
     if(category>6) {
       category = 0;
     }
-    strcpy(line_buf, rl_line_buffer);
-    cursor_pos = rl_point;
-    rl_callback_handler_install(get_prompt(), process_line);
-    rl_insert_text(line_buf);
-    rl_point = cursor_pos;
-    rl_refresh_line(0, 0);
+    rl_message(get_prompt());
   }
+  return(0);
 }
 
 int change_item_up(int count, int key)
@@ -224,13 +119,9 @@ int change_item_up(int count, int key)
         if (item<0) item = 8;
         break;
     }
-    strcpy(line_buf, rl_line_buffer);
-    cursor_pos = rl_point;
-    rl_callback_handler_install(get_prompt(), process_line);
-    rl_insert_text(line_buf);
-    rl_point = cursor_pos;
-    rl_refresh_line(0, 0);
+    rl_message(get_prompt());
   }
+  return(0);
 }
 
 int change_item_down(int count, int key)
@@ -258,13 +149,9 @@ int change_item_down(int count, int key)
         if (item>8) item = 0;
         break;
     }
-    strcpy(line_buf, rl_line_buffer);
-    cursor_pos = rl_point;
-    rl_callback_handler_install(get_prompt(), process_line);
-    rl_insert_text(line_buf);
-    rl_point = cursor_pos;
-    rl_refresh_line(0, 0);
+    rl_message(get_prompt());
   }
+  return(0);
 }
 
 /*
@@ -294,6 +181,7 @@ int insert_aplchar(int count, int key) {
     rl_insert_text(aplchar);
     rl_refresh_line(0, 0);
   }
+  return(0);
 }
 
 char * get_prompt(void)

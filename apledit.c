@@ -43,7 +43,14 @@ char *readline (const char *prompt) {
     rl_add_defun("apledit-item-up", change_item_up, -1);
     rl_add_defun("apledit-item-down", change_item_down, -1);
     rl_add_defun("apledit-insert-char", insert_aplchar, -1);
-    rl_read_init_file(INITFILE);
+    /* Quick and dirty use of prompt2 variable for something else */
+    prompt2 = getenv("APLEDIT_INITFILE");
+    if (NULL == prompt2) {
+      rl_read_init_file(INITFILE);
+    } else {
+      rl_read_init_file(prompt2);
+    }
+    /* Now prompt2 is used as it has to be */
     prompt2 = getenv("APLEDIT_PROMPT");
     if (NULL == prompt2) {
       prompt2 = "[%s %s] \0";

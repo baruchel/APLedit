@@ -55,7 +55,7 @@ char *readline (const char *prompt) {
     if (NULL == prompt2) {
       prompt2 = "[%s %s] \0";
     }
-    color = getenv("APLEDIT_COLOR");
+    color = getenv("APLEDIT_COLOR_BANNER");
     if (NULL == color) {
       color = "\0";
     }
@@ -64,6 +64,10 @@ char *readline (const char *prompt) {
         color,VERSION, COPYRIGHT);
       fprintf(stderr, "  Released under the terms of the GNU Public License.\n");
       fprintf(stderr,"\n");
+    }
+    color = getenv("APLEDIT_COLOR");
+    if (NULL == color) {
+      color = "\0";
     }
   }
 

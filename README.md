@@ -16,7 +16,7 @@ The program has to be run through the LD_PRELOAD mechanism.
 
     LD_PRELOAD=./apledit.so apl --noCIN
 
-Of course, once you have found a good location for the binary file, you should create some alias for your shell in order to type only `apl` or some easy to remeber command.
+Of course, once you have found a good location for the binary file, you should create some alias for your shell in order to type only `apl` or some easy to remember command.
 
 You can enter the editor whenever you want with the apledit-mode function.
 
@@ -42,9 +42,13 @@ You can customize the menu with something like:
     export APLEDIT_PROMPT='%s [%s] '
     export APLEDIT_COLOR=$'\033[0;1m'
 
-You can remove the banner concerning APLedit with:
+You can change the color of the banner (concerning APLedit) with:
 
-    export APLEDIT_NOBANNER="True"
+    export APLEDIT_COLOR_BANNER=$'\033[0;35m'
+
+or you can remove it with:
+
+    export APLEDIT_NOBANNER="anything"
 
 ##Demo
 ![Demo](https://raw.github.com/baruchel/APLedit/master/apledit.gif)

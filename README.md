@@ -4,13 +4,23 @@ APLedit
 A line-editor with a pop-up menu for easely inserting special APL characters.
 It is able to interact with GNU APL.
 
+#Installation
+
 Compile it with:
 
     gcc -Wall -fPIC -shared -o apledit.so apledit.c -ldl
 
+#Usage
+
+The program has to be run through the LD_PRELOAD mechanism.
+
+    LD_PRELOAD=./apledit.so apl --noCIN
+
+You can enter the editor whenever you want with the apledit-mode function.
+
+#Settings
+
 The key bindings must be set in the ~/.inputrc configuration file of each user.
-If for some reason another file is wanted, its path has to be stored in the
-APLEDIT_INITFILE environment variable.
 Example:
 
     $if APLedit
@@ -22,11 +32,8 @@ Example:
     "\e/": apledit-insert-char        # key "menu" (below, next to right-ctrl)
     $endif
 
-It has to be run through the LD_PRELOAD mechanism.
-
-    LD_PRELOAD=./apledit.so apl --noCIN
-
-You can enter the editor whenever you want with the apledit-mode function.
+If for some reason another file is wanted, its path has to be stored in the
+APLEDIT_INITFILE environment variable.
 
 You can customize the menu with something like:
 

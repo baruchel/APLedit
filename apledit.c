@@ -1,4 +1,5 @@
 #define VERSION "1.0"
+#define COPYRIGHT "(c) 2014"
 
 #define _GNU_SOURCE
 
@@ -42,14 +43,14 @@ char *readline (const char *prompt) {
     rl_add_defun("apledit-item-down", change_item_down, -1);
     rl_add_defun("apledit-insert-char", insert_aplchar, -1);
     rl_read_init_file("~/.inputrc");
-    fprintf(stderr,"APLedit %s by Th. Baruchel\n", VERSION);
+    fprintf(stderr, "  APLedit %s by Th. Baruchel %s.\n", VERSION, COPYRIGHT);
+    fprintf(stderr, "  Released under the terms of the GNU Public License.\n");
     prompt2 = getenv("APLEDIT_PROMPT");
     if (NULL == prompt2) {
       prompt2 = "[%s %s] \0";
     }
   }
 
-  /* install a new handler which will change the prompt and erase the current line */
   strcpy(prompt1,prompt);
 
   return (*original_readline)(get_prompt());
